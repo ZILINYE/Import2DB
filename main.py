@@ -8,7 +8,7 @@ def main():
         print(record)
         print('Quitting the program')
         quit()
-    nocomma,record = initData.CheckNameWithoutComma()
+    nocomma,record = initData.CheckNameWithoutComma(column='NAME')
     print(record)
 
 main()

@@ -24,11 +24,11 @@ class Clean:
             return False,self.initfile
 
 
-    def CheckNameWithoutComma(self):
+    def CheckNameWithoutComma(self,column):
         print("check Student Name without comma")
         nocomma_name = True
         while nocomma_name:
-            nocomma = self.initfile[~self.initfile['NAME'].str.contains(',', na=False)]
+            nocomma = self.initfile[~self.initfile[column].str.contains(',', na=False)]
             nocomma_name = len(nocomma)>0
             if nocomma_name:
                 print(f"{bcolors.WARNING}Fund {str(len(nocomma))} no-comma included record(s) !!!{bcolors.ENDC}")
@@ -37,7 +37,7 @@ class Clean:
                 if action == 1:
                     indexlist = nocomma.index
                     for index in indexlist:
-                        self.initfile.at[index,'NAME'] = self.initfile.at[index,'NAME'].replace(' ',',',1)
+                        self.initfile.at[index,column] = self.initfile.at[index,column].replace(' ',',',1)
                     
                 else:
                     quit()
