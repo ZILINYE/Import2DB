@@ -2,8 +2,8 @@ import warnings
 from Cleaner.data_clean import Clean
 def main():
     print("Start from Begin")
-    initData = Clean(pk='EMPLID',path='Files/Fall/Enrolled*.xlsx')
-    duplicated,record = initData.CheckDuplicate()
+    initData = Clean(path='Files/Fall/Enrolled*.xlsx')
+    duplicated,record = initData.CheckDuplicate(subset='EMPLID')
     if duplicated:
         print(record)
         print('Quitting the program')

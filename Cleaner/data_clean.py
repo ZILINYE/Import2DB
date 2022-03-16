@@ -6,8 +6,7 @@ import glob
 from warn import bcolors
 # import os.path
 class Clean:
-    def __init__(self,pk,path):
-        self.pk = pk
+    def __init__(self,path):
         print("Loading File From Folder and import into Pandas")
         for file in glob.glob(path):
             file_path = file
@@ -15,11 +14,11 @@ class Clean:
         self.initfile = self.initfile.drop(columns=['BIRTHDATE','SEX','ACADEMIC_LOAD','COUNTRY','Phone/WhatApps','Address','HOME_EMAIL','CHARGES','PYMTS','Outstanding Fee','Comment'])
 
 
-    def CheckDuplicate(self):
+    def CheckDuplicate(self,subset):
         print("check Duplicate Data from files")
-        if len(self.initfile[self.initfile.duplicated(subset=self.pk)])>0:
-            print(f"{bcolors.WARNING}Fund {str(len(self.initfile[self.initfile.duplicated(subset=self.pk)]))} duplicated record(s) !!!{bcolors.ENDC}")
-            return True,self.initfile[self.initfile.duplicated(subset=self.pk,keep=False)]
+        if len(self.initfile[self.initfile.duplicated(subset=subset)])>0:
+            print(f"{bcolors.WARNING}Fund {str(len(self.initfile[self.initfile.duplicated(subset=subset)]))} duplicated record(s) !!!{bcolors.ENDC}")
+            return True,self.initfile[self.initfile.duplicated(subset=subset,keep=False)]
         else:
             return False,self.initfile
 
