@@ -1,4 +1,3 @@
-import warnings
 from Cleaner.data_clean import Clean
 from DataProcess.tomaria import Maria
 
@@ -14,7 +13,7 @@ def main():
     nocomma, record = initData.CheckNameWithoutComma(column='NAME')
     print(record)
     db = Maria(record)
-    db.GetProgramInfo()
+    db.GetProgramInfo(Pcode='M018')
 
 
 main()

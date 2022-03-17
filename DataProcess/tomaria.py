@@ -1,30 +1,31 @@
-import mariadb
+from msilib.schema import Error
+from sqlalchemy import create_engine
 import sys
-
+import pandas as pd
+import json
 
 class Maria:
     def __init__(self, pd):
         self.pd = pd
         try:
-            conn = mariadb.connect(
-                user="it",
-                password="Acumen@321",
-                host="192.168.5.235",
-                port=3306,
-                database="Ace"
-
-            )
-        except mariadb.Error as e:
+            sqlEngine=create_engine('mysql+pymysql://it:Acumen321@192.168.5.235/Ace', pool_recycle=3600)
+            
+        except Error as e:
             print(f"Error connecting to MariaDB Platform: {e}")
             sys.exit(1)
 
         # Get Cursor
-        self.cur = conn.cursor()
+        self.cursor=sqlEngine.connect()
 
-    def GetProgramInfo(self):
-        ProgramList = self.cur.execute(
-            "SELECT * FROM Campus")
-        print(ProgramList)
-        for (Program_code, Program_desc) in ProgramList:
-            print(
-                f"Program Code : {Program_code}, Program Description : {Program_desc}")
+    def GetProgramInfo(self,Pcode):
+        condition=''
+        if len(Pcode)>0:
+            condition = ("WHERE Program_code='%s'" % Pcode)
+        sql = ("SELECT Program_code,Program_desc FROM ProgramInfo " + condition)
+        df = pd.read_sql(sql,self.cursor)
+        print(df)
+        result = df.to_json(orient="records")
+        parsed = json.loads(result)
+        jsonlist = json.dumps(parsed, indent=4)
+        print(jsonlist)
+

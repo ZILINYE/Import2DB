@@ -1,10 +1,7 @@
 from distutils.log import warn
-import imp
-import string
 import pandas as pd
 import glob
 from warn import bcolors
-# import os.path
 class Clean:
     def __init__(self,path):
         print("Loading File From Folder and import into Pandas")
