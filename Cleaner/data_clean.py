@@ -8,7 +8,7 @@ class Clean:
         for file in glob.glob(path):
             file_path = file
         self.initfile = pd.read_excel(file_path)
-        self.initfile = self.initfile.drop(columns=['BIRTHDATE','SEX','ACADEMIC_LOAD','COUNTRY','Phone/WhatApps','Address','HOME_EMAIL','CHARGES','PYMTS','Outstanding Fee','Comment'])
+        self.initfile = self.initfile.drop(columns=['ACADEMIC_LOAD','CHARGES','PYMTS',])
 
 
     def CheckDuplicate(self,subset):
@@ -29,7 +29,8 @@ class Clean:
             if nocomma_name:
                 print(f"{bcolors.WARNING}Fund {str(len(nocomma))} no-comma included record(s) !!!{bcolors.ENDC}")
                 print(nocomma)
-                action = int(input("choose action : \n1.Auto Fix (add comma at first space location)\n2.Manully fix\n:"))
+                # action = int(input("choose action : \n1.Auto Fix (add comma at first space location)\n2.Manully fix\n:"))
+                action = 1
                 if action == 1:
                     indexlist = nocomma.index
                     for index in indexlist:
