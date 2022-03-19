@@ -1,4 +1,4 @@
-from msilib.schema import Error
+# from msilib.schema import Error
 from sqlalchemy import create_engine
 import sys
 import pandas as pd
@@ -14,8 +14,9 @@ class Maria:
                 "mysql+pymysql://it:Acumen321@192.168.5.235/Ace", pool_recycle=3600
             )
 
-        except Error as e:
+        except:
             print(f"Error connecting to MariaDB Platform: {e}")
+            print("error on connecting to mysql")
             sys.exit(1)
 
         # Get Cursor
@@ -39,7 +40,7 @@ class Maria:
         sql = "SELECT * FROM StudentInfo " + condition
         studentinfo = pd.read_sql(sql, self.cursor)
         return studentinfo
-
+    
     def ImportMariadb(self):
         pd.set_option('display.max_columns', 500)
         pd.set_option('display.width', None)
@@ -86,8 +87,6 @@ class Maria:
         )
         studentInfo = self.dataf.drop(columns=['Section','CampusCode','Term','TermYear','Semester','Program_code']).rename(columns={'StudentID':'ID'})
         droplist= studentondb['ID'].tolist()
-        print(studentInfo)
-        new = pd.concat([studentInfo,studentondb]).drop_duplicates(subset=['ID']).set_index('ID')
-        print(new.drop(droplist))
-        # studentInfo.to_sql(name='StudentInfo',con=self.cursor,if_exists='append_skipdupes')
+        differ = pd.concat([studentInfo,studentondb]).drop_duplicates(subset=['ID']).set_index('ID').drop(droplist)
+        differ.to_sql(name='StudentInfo',con=self.cursor,if_exists='append')
         # print(studentInfo)

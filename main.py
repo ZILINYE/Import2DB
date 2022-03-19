@@ -4,7 +4,7 @@ from DataProcess.tomaria import Maria
 
 def main():
     print("Start from Begin")
-    initData = Clean(path='Files/Winter/Enrolled*.xlsx')
+    initData = Clean(path='Files/Spring/Enrolled*.xlsx')
     duplicated, record = initData.CheckDuplicate(subset='EMPLID')
     if duplicated:
         print(record)
