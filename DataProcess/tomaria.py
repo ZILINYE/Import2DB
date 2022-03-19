@@ -43,10 +43,6 @@ class Maria:
         return studentinfo
 
     def ImportStudentInfo(self):
-        # pd.set_option('display.max_columns', 500)
-        # pd.set_option('display.width', None)
-        # pd.set_option('display.max_colwidth', None)
-
        
         # import student info function
         studentondb = self.GetStudentInfo(Sid='')
@@ -56,7 +52,6 @@ class Maria:
         differ.to_sql(name='StudentInfo',con=self.cursor,if_exists='append')
         # print(studentInfo)
     def ImportStudentProgramInfo(self):
-
 
         studentproinfo = self.dataf.drop(columns=['Fullname','Firstname','Lastname','CampEmail','HomeEmail','Gender','Birthday','Address','Country','ContactInfo'],errors='ignore').set_index('StudentID')
         studentproinfo.to_sql(name='StudentProgram',con=self.cursor,if_exists='append')
