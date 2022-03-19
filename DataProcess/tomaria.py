@@ -3,9 +3,6 @@ from sqlalchemy import create_engine
 import sys
 import pandas as pd
 import json
-import difflib
-
-
 class Maria:
     def __init__(self, dataf):
         self.dataf = dataf
