@@ -1,8 +1,9 @@
-# from msilib.schema import Error
 from sqlalchemy import create_engine
 import sys
 import pandas as pd
 import json
+
+
 class Maria:
     def __init__(self, dataf):
         self.dataf = dataf
@@ -31,7 +32,8 @@ class Maria:
         # parsed = json.loads(result)
         # jsonlist = json.dumps(parsed, indent=4)
         # print(jsonlist)
-    def GetStudentInfo(self,Sid) -> pd.DataFrame: 
+
+    def GetStudentInfo(self, Sid) -> pd.DataFrame:
         condition = ""
         if len(Sid) > 0:
             condition = "WHERE ID='%s'" % Sid
@@ -40,15 +42,46 @@ class Maria:
         return studentinfo
 
     def ImportStudentInfo(self):
-       
+
         # import student info function
-        studentondb = self.GetStudentInfo(Sid='')
-        studentInfo = self.dataf.drop(columns=['Section','Campus_code','Term','TermYear','Semester','Program_code']).rename(columns={'StudentID':'ID'})
-        droplist= studentondb['ID'].tolist()
-        differ = pd.concat([studentInfo,studentondb]).drop_duplicates(subset=['ID']).set_index('ID').drop(droplist)
-        differ.to_sql(name='StudentInfo',con=self.cursor,if_exists='append')
+        studentondb = self.GetStudentInfo(Sid="")
+        studentInfo = self.dataf.drop(
+            columns=[
+                "Section",
+                "Campus_code",
+                "Term",
+                "TermYear",
+                "Semester",
+                "Program_code",
+            ]
+        ).rename(columns={"StudentID": "ID"})
+        droplist = studentondb["ID"].tolist()
+        differ = (
+            pd.concat([studentInfo, studentondb])
+            .drop_duplicates(subset=["ID"])
+            .set_index("ID")
+            .drop(droplist)
+        )
+        differ.to_sql(name="StudentInfo", con=self.cursor, if_exists="append")
         # print(studentInfo)
+
     def ImportStudentProgramInfo(self):
 
-        studentproinfo = self.dataf.drop(columns=['Fullname','Firstname','Lastname','CampEmail','HomeEmail','Gender','Birthday','Address','Country','ContactInfo'],errors='ignore').set_index('StudentID')
-        studentproinfo.to_sql(name='StudentProgram',con=self.cursor,if_exists='append')
+        studentproinfo = self.dataf.drop(
+            columns=[
+                "Fullname",
+                "Firstname",
+                "Lastname",
+                "CampEmail",
+                "HomeEmail",
+                "Gender",
+                "Birthday",
+                "Address",
+                "Country",
+                "ContactInfo",
+            ],
+            errors="ignore",
+        ).set_index("StudentID")
+        studentproinfo.to_sql(
+            name="StudentProgram", con=self.cursor, if_exists="append"
+        )
