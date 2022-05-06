@@ -1,9 +1,14 @@
 # from msilib.schema import Error
+from audioop import add
+from re import U
+from unittest.loader import VALID_MODULE_NAME
 from sqlalchemy import create_engine
 import sys
 import pandas as pd
 import json
 import difflib
+import firebase_admin
+from firebase_admin import credentials,firestore
 
 
 class Maria:
@@ -87,6 +92,29 @@ class Maria:
         )
         studentInfo = self.dataf.drop(columns=['Section','CampusCode','Term','TermYear','Semester','Program_code']).rename(columns={'StudentID':'ID'})
         droplist= studentondb['ID'].tolist()
-        differ = pd.concat([studentInfo,studentondb]).drop_duplicates(subset=['ID']).set_index('ID').drop(droplist)
-        differ.to_sql(name='StudentInfo',con=self.cursor,if_exists='append')
+       
+        # differ = pd.concat([studentInfo,studentondb]).drop_duplicates(subset=['ID']).set_index('ID').drop(droplist)
+        # differ.to_sql(name='StudentInfo',con=self.cursor,if_exists='append')
+
+
+        cred = credentials.Certificate("my-ace-staff-firebase-adminsdk-ebncq-e75c331dc5.json")
+        firebase_admin.initialize_app(cred,{'databaseURL':'https://my-ace-staff.firebaseio.com/'})
+        db = firestore.client()
+        doc_ref = db.collection(u'StudentInfo')
+
+        
+        tmp = studentInfo.to_dict(orient='records')
+        print(tmp)
+        for value in tmp:
+
+            doc_ref.document(value['ID']).set(value)
+      
+        # list(map(lambda x: doc_ref.add(x), tmp))
+
+        # doc_ref.set(tmp)
+        # docs = doc_ref.stream()
+        # for doc in docs:
+        #     print(f'{doc.id} => {doc.to_dict()}')
+
+
         # print(studentInfo)
