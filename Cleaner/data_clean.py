@@ -39,5 +39,46 @@ class Clean:
                 else:
                     quit()
                 
-        return nocomma_name,self.initfile
-                
+        return self.initfile
+    
+    def FormatDf(self) -> pd.DataFrame:
+        self.initfile[["Term", "TermYear"]] = self.initfile.TERMDESC.str.split(
+            " ",
+            expand=True,
+        )
+        self.initfile[
+            ["Program_code", "Semester"]
+        ] = self.initfile.ACAD_PROG_PRIMARY.str.split(
+            " ",
+            expand=True,
+        )
+        self.initfile[["Firstname", "Lastname"]] = self.initfile.NAME.str.split(
+            ",",
+            expand=True,
+        )
+        self.initfile["Semester"] = self.initfile["Semester"].str[-1:]
+        self.initfile['EMPLID'] = self.initfile['EMPLID'].apply(str)
+        self.initfile["StudentID"] = "W0" + self.initfile["EMPLID"]
+        self.initfile['BIRTHDATE'] = self.initfile["BIRTHDATE"].astype(str).str[0:10]
+        self.initfile =self.initfile.drop(
+            columns=[
+                "TERMDESC",
+                "ACAD_PROG_PRIMARY",
+                "EMPLID",
+                "PROG_DESCR",
+            ]
+        )
+        self.initfile = self.initfile.rename(
+            columns={
+                "CAMPUS": "Campus_code",
+                "Class": "Section",
+                "NAME": "Fullname",
+                "BIRTHDATE": "Birthday",
+                "SEX": "Gender",
+                "COUNTRY": "Country",
+                "Phone/WhatApps": "ContactInfo",
+                "CAMP_EMAIL": "CampEmail",
+                "HOME_EMAIL":"HomeEmail",
+            }
+        )
+        return self.initfile
