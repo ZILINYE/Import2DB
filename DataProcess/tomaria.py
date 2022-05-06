@@ -1,20 +1,14 @@
-<<<<<<< HEAD
 # from msilib.schema import Error
 from audioop import add
 from re import U
 from unittest.loader import VALID_MODULE_NAME
-=======
->>>>>>> cec23b9d00f613bfbdbdbde699380043c91d4be2
 from sqlalchemy import create_engine
 import sys
 import pandas as pd
 import json
-<<<<<<< HEAD
 import difflib
 import firebase_admin
 from firebase_admin import credentials,firestore
-=======
->>>>>>> cec23b9d00f613bfbdbdbde699380043c91d4be2
 
 
 class Maria:
@@ -22,7 +16,7 @@ class Maria:
         self.dataf = dataf
         try:
             sqlEngine = create_engine(
-                "mysql+pymysql://root:YZLmm1994@192.168.3.73/Test", pool_recycle=3600
+                "mysql+pymysql://it:Acumen321@192.168.5.235/Ace", pool_recycle=3600
             )
 
         except:
@@ -33,49 +27,56 @@ class Maria:
         # Get Cursor
         self.cursor = sqlEngine.connect()
 
-    def GetProgramInfo(self, Pcode) -> pd.DataFrame:
+    def GetProgramInfo(self, Pcode):
         condition = ""
         if len(Pcode) > 0:
             condition = "WHERE Program_code='%s'" % Pcode
         sql = "SELECT Program_code,Program_desc FROM ProgramInfo " + condition
-        programinfo = pd.read_sql(sql, self.cursor)
-        return programinfo
-        # print(df)
-        # result = df.to_json(orient="records")
-        # parsed = json.loads(result)
-        # jsonlist = json.dumps(parsed, indent=4)
-        # print(jsonlist)
-
-    def GetStudentInfo(self, Sid) -> pd.DataFrame:
+        df = pd.read_sql(sql, self.cursor)
+        print(df)
+        result = df.to_json(orient="records")
+        parsed = json.loads(result)
+        jsonlist = json.dumps(parsed, indent=4)
+        print(jsonlist)
+    def GetStudentInfo(self,Sid) -> pd.DataFrame: 
         condition = ""
         if len(Sid) > 0:
             condition = "WHERE ID='%s'" % Sid
         sql = "SELECT * FROM StudentInfo " + condition
         studentinfo = pd.read_sql(sql, self.cursor)
         return studentinfo
-
-    def ImportStudentInfo(self):
-
-        # import student info function
-        studentondb = self.GetStudentInfo(Sid="")
-        studentInfo = self.dataf.drop(
-            columns=[
-                "Section",
-                "Campus_code",
-                "Term",
-                "TermYear",
-                "Semester",
-                "Program_code",
-            ]
-        ).rename(columns={"StudentID": "ID"})
-        droplist = studentondb["ID"].tolist()
-        differ = (
-            pd.concat([studentInfo, studentondb])
-            .drop_duplicates(subset=["ID"])
-            .set_index("ID")
-            .drop(droplist)
+    
+    def ImportMariadb(self):
+        pd.set_option('display.max_columns', 500)
+        pd.set_option('display.width', None)
+        pd.set_option('display.max_colwidth', None)
+        studentondb = self.GetStudentInfo(Sid='')
+        self.dataf[["Term", "TermYear"]] = self.dataf.TERMDESC.str.split(
+            " ",
+            expand=True,
         )
-<<<<<<< HEAD
+        self.dataf[
+            ["Program_code", "Semester"]
+        ] = self.dataf.ACAD_PROG_PRIMARY.str.split(
+            " ",
+            expand=True,
+        )
+        self.dataf[["Firstname", "Lastname"]] = self.dataf.NAME.str.split(
+            ",",
+            expand=True,
+        )
+        self.dataf["Semester"] = self.dataf["Semester"].str[-1:]
+        self.dataf['EMPLID'] = self.dataf['EMPLID'].apply(str)
+        self.dataf["StudentID"] = "W0" + self.dataf["EMPLID"]
+        self.dataf['BIRTHDATE'] = self.dataf["BIRTHDATE"].astype(str).str[0:10]
+        self.dataf =self.dataf.drop(
+            columns=[
+                "TERMDESC",
+                "ACAD_PROG_PRIMARY",
+                "EMPLID",
+                "PROG_DESCR",
+            ]
+        )
         self.dataf = self.dataf.rename(
             columns={
                 "CAMPUS": "CampusCode",
@@ -116,28 +117,4 @@ class Maria:
         #     print(f'{doc.id} => {doc.to_dict()}')
 
 
-=======
-        differ.to_sql(name="StudentInfo", con=self.cursor, if_exists="append")
->>>>>>> cec23b9d00f613bfbdbdbde699380043c91d4be2
         # print(studentInfo)
-
-    def ImportStudentProgramInfo(self):
-
-        studentproinfo = self.dataf.drop(
-            columns=[
-                "Fullname",
-                "Firstname",
-                "Lastname",
-                "CampEmail",
-                "HomeEmail",
-                "Gender",
-                "Birthday",
-                "Address",
-                "Country",
-                "ContactInfo",
-            ],
-            errors="ignore",
-        ).set_index("StudentID")
-        studentproinfo.to_sql(
-            name="StudentProgram", con=self.cursor, if_exists="append"
-        )
