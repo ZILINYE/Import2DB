@@ -1,4 +1,7 @@
-from sqlalchemy import create_engine
+# from curses.ascii import SI
+from tkinter.tix import Tree
+from numpy import empty
+from sqlalchemy import create_engine, false, true
 import sys
 import pandas as pd
 import json
@@ -9,7 +12,7 @@ class Maria:
         self.dataf = dataf
         try:
             sqlEngine = create_engine(
-                "mysql+pymysql://root:YZLmm1994@192.168.3.73/Test", pool_recycle=3600
+                "mysql+pymysql://it:Acumen321@192.168.5.238/Ace", pool_recycle=3600
             )
 
         except:
@@ -33,18 +36,39 @@ class Maria:
         # jsonlist = json.dumps(parsed, indent=4)
         # print(jsonlist)
 
-    def GetStudentInfo(self, Sid) -> pd.DataFrame:
-        condition = ""
+    def GetStudentInfo(self,Sid,condition="",field="*") -> pd.DataFrame:
+        # condition = ""
+        # field = "*"
         if len(Sid) > 0:
             condition = "WHERE ID='%s'" % Sid
-        sql = "SELECT * FROM StudentInfo " + condition
+        sql = "SELECT "+field+" FROM StudentInfo " + condition
         studentinfo = pd.read_sql(sql, self.cursor)
         return studentinfo
 
-    def ImportStudentInfo(self):
+    # def ImportStudentInfo(self):
 
-        # import student info function
-        studentondb = self.GetStudentInfo(Sid="")
+    #     # import student info function
+    #     studentondb = self.GetStudentInfo(Sid="")
+    #     studentInfo = self.dataf.drop(
+    #         columns=[
+    #             "Section",
+    #             "Campus_code",
+    #             "Term",
+    #             "TermYear",
+    #             "Semester",
+    #             "Program_code",
+    #         ]
+    #     ).rename(columns={"StudentID": "ID"})
+    #     droplist = studentondb["ID"].tolist()
+    #     differ = (
+    #         pd.concat([studentInfo, studentondb])
+    #         .drop_duplicates(subset=["ID"])
+    #         .set_index("ID")
+    #         .drop(droplist)
+    #     )
+    #     differ.to_sql(name="StudentInfo", con=self.cursor, if_exists="append")
+
+    def ImportStuInfo(self):
         studentInfo = self.dataf.drop(
             columns=[
                 "Section",
@@ -55,16 +79,24 @@ class Maria:
                 "Program_code",
             ]
         ).rename(columns={"StudentID": "ID"})
-        droplist = studentondb["ID"].tolist()
-        differ = (
-            pd.concat([studentInfo, studentondb])
-            .drop_duplicates(subset=["ID"])
-            .set_index("ID")
-            .drop(droplist)
-        )
-        differ.to_sql(name="StudentInfo", con=self.cursor, if_exists="append")
-        # print(studentInfo)
-
+        # index = 0
+        print(studentInfo)
+        for index in range(2):
+            stuid = studentInfo.iloc[index]['ID']
+            infoDB = self.GetStudentInfo(Sid=stuid).drop(columns=['EmergencyContact','Status']).set_index('ID')
+            print("Database output :" )
+            print(infoDB)
+            print("File Output :" )
+            
+            stuinfo = studentInfo.iloc[[index]].set_index('ID')
+            # ! Birthday Not match !!
+            print(stuinfo['Birthday'])
+            print(pd.concat([infoDB,stuinfo]).duplicated(subset=['Address']))
+            # if (pd.concat([infoDB,studentInfo.iloc[[index]]]).duplicated() is not empty) :
+            #     print(pd.concat([infoDB,studentInfo.iloc[[index]]]).duplicated())
+            
+            # studentInfo.iloc[[index]]
+            
     def ImportStudentProgramInfo(self):
 
         studentproinfo = self.dataf.drop(
@@ -85,3 +117,4 @@ class Maria:
         studentproinfo.to_sql(
             name="StudentProgram", con=self.cursor, if_exists="append"
         )
+ 

@@ -7,7 +7,8 @@ def main():
     folderlist = ['Winter','Spring','Fall']
     for folder in folderlist:
         print(f"Working on {folder} folder")
-        path= "Files/'%s'/Enrolled*.xlsx" % folder
+        path= "Files/%s/Enrolled*.xlsx" % folder
+  
         initData = Clean(path=path)
         # Checking the Duplicate data for the original excel file on column 'EMPLID'
         duplicated, record = initData.CheckDuplicate(subset='EMPLID')
@@ -22,9 +23,9 @@ def main():
         # Initialize the Dataframe data for the next step
         db = Maria(formatted)
         # Import student information into the table 'StudentInfo'
-        db.ImportStudentInfo()
+        db.ImportStuInfo()
         # Import student program register information into the table 'StudentProgram'
-        db.ImportStudentProgramInfo()
+        # db.ImportStudentProgramInfo()
 
         
         # Get specfic program student list
