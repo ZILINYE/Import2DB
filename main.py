@@ -4,10 +4,12 @@ from DataProcess.tomaria import Maria
 
 def main():
     
-    folderlist = ['Winter','Spring','Fall']
+    # folderlist = ['Winter','Spring','Fall']
+    
+    folderlist = ['Spring']
     for folder in folderlist:
         print(f"Working on {folder} folder")
-        path= "Files/%s/Enrolled*.xlsx" % folder
+        path= "Files/2022/%s/Enrolled*.xlsx" % folder
   
         initData = Clean(path=path)
         # Checking the Duplicate data for the original excel file on column 'EMPLID'

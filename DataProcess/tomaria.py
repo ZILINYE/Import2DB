@@ -1,11 +1,14 @@
 # from curses.ascii import SI
+from distutils.log import error
+import string
 from tkinter.tix import Tree
 from numpy import empty
 from sqlalchemy import create_engine, false, true
 import sys
 import pandas as pd
-import json
-
+# import json
+# from datetime import datetime
+import mysql.connector
 
 class Maria:
     def __init__(self, dataf):
@@ -14,6 +17,12 @@ class Maria:
             sqlEngine = create_engine(
                 "mysql+pymysql://it:Acumen321@192.168.5.238/Ace", pool_recycle=3600
             )
+            self.mydb = mysql.connector.connect(
+            host="192.168.5.238",
+            user="it",
+            password="Acumen321",
+            database="Ace"
+            )
 
         except:
             print(f"Error connecting to MariaDB Platform: {e}")
@@ -21,6 +30,7 @@ class Maria:
             sys.exit(1)
 
         # Get Cursor
+        self.mycursor = self.mydb.cursor()
         self.cursor = sqlEngine.connect()
 
     def GetProgramInfo(self, Pcode) -> pd.DataFrame:
@@ -79,19 +89,29 @@ class Maria:
                 "Program_code",
             ]
         ).rename(columns={"StudentID": "ID"})
-        # index = 0
-        print(studentInfo)
-        for index in range(2):
+        for index in range(len(studentInfo.index)):
             stuid = studentInfo.iloc[index]['ID']
             infoDB = self.GetStudentInfo(Sid=stuid).drop(columns=['EmergencyContact','Status']).set_index('ID')
-            print("Database output :" )
-            print(infoDB)
-            print("File Output :" )
-            
             stuinfo = studentInfo.iloc[[index]].set_index('ID')
-            # ! Birthday Not match !!
-            print(stuinfo['Birthday'])
-            print(pd.concat([infoDB,stuinfo]).duplicated(subset=['Address']))
+            # * convert datetime to string
+            infoDB['Birthday'] = infoDB['Birthday'].astype(str)
+
+            # test = stuinfo.iloc[0]['Birthday']
+            # print(type(test))
+            # print(type(infoDB.iloc[0]['Birthday']))
+            # print(stuinfo['Birthday'])
+            # print(infoDB['Birthday'])
+            # if infoDB.iloc[0]['Birthday'] == stuinfo.iloc[0]['Birthday']:
+            #     print('Same!!')
+
+            # If student already exist in database
+            if len(pd.concat([infoDB,stuinfo]).duplicated().index)>1:
+                # todo call mysql query 
+                print('Woring on '+str(stuid))
+                self.UpdateStuInfo(stuid=str(stuid),newinfo=stuinfo)
+                sys.exit(1)
+            
+            print(len(pd.concat([infoDB,stuinfo]).duplicated().index))
             # if (pd.concat([infoDB,studentInfo.iloc[[index]]]).duplicated() is not empty) :
             #     print(pd.concat([infoDB,studentInfo.iloc[[index]]]).duplicated())
             
@@ -117,4 +137,20 @@ class Maria:
         studentproinfo.to_sql(
             name="StudentProgram", con=self.cursor, if_exists="append"
         )
- 
+    
+    def UpdateStuInfo(self,stuid,newinfo):
+
+        # todo Need modify to Update method Because the reference limit
+        # delete Old Record
+        query = "DELETE FROM StudentInfo WHERE ID ='%s'" % stuid
+        # try:
+        #     self.mycursor.execute(query)
+        #     self.mydb.commit()
+        # except:
+        #     print(error)
+        #     sys.exit(1)
+        self.mycursor.execute(query)
+        self.mydb.commit()
+        # newinfo.to_sql(
+        #     name="StudentInfo", con=self.cursor, if_exists="append"
+        # )
