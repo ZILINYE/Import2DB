@@ -27,7 +27,7 @@ def main():
         # Import student information into the table 'StudentInfo'
         db.ImportStuInfo()
         # Import student program register information into the table 'StudentProgram'
-        # db.ImportStudentProgramInfo()
+        db.ImportStudentProgramInfo()
 
         
         # Get specfic program student list
