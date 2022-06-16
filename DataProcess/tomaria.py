@@ -1,9 +1,10 @@
 # from curses.ascii import SI
 from distutils.log import error
 import string
+from time import process_time_ns
 
 # from tkinter.tix import Tree
-from numpy import empty
+from numpy import empty, int64
 from sqlalchemy import create_engine, false, true
 import sys
 import pandas as pd
@@ -37,7 +38,7 @@ class Maria:
         condition = ""
         if len(Pcode) > 0:
             condition = "WHERE Program_code='%s'" % Pcode
-        sql = "SELECT Program_code,Program_desc FROM ProgramInfo " + condition
+        sql = "SELECT Program_code,Program_desc FROM Program " + condition
         programinfo = pd.read_sql(sql, self.cursor)
         return programinfo
         # print(df)
@@ -51,9 +52,14 @@ class Maria:
         # field = "*"
         if len(Sid) > 0:
             condition = "WHERE ID='%s'" % Sid
-        sql = "SELECT " + field + " FROM StudentInfo " + condition
+        sql = "SELECT " + field + " FROM Student " + condition
         studentinfo = pd.read_sql(sql, self.cursor)
         return studentinfo
+
+    def GetEnrollment(self) -> pd.DataFrame:
+        sql = "SELECT * FROM Enrollment "
+        enrollment = pd.read_sql(sql, self.cursor)
+        return enrollment
 
     # def ImportStudentInfo(self):
 
@@ -112,7 +118,7 @@ class Maria:
                 # sys.exit(1)
 
 
-    def ImportStudentProgramInfo(self):
+    def ImportEnrollment(self):
 
         studentproinfo = self.dataf.drop(
             columns=[
@@ -128,18 +134,23 @@ class Maria:
                 "ContactInfo",
             ],
             errors="ignore",
-        ).set_index("StudentID")
-        studentproinfo.to_sql(
-            name="StudentProgram", con=self.cursor, if_exists="append"
+        )
+        enrollment = self.GetEnrollment().drop(columns=['ID'])
+        studentproinfo["TermYear"] = studentproinfo["TermYear"].astype(int64)
+        studentproinfo["Semester"] = studentproinfo["Semester"].astype(int64)
+        all = pd.concat([enrollment,studentproinfo]).drop_duplicates()
+        differ = pd.concat([all,enrollment]).drop_duplicates(keep=False).set_index("StudentID")
+        differ.to_sql(
+            name="Enrollment", con=self.cursor, if_exists="append"
         )
 
     def AddStuInfo(self,newinfo):
-        newinfo.to_sql(name="StudentInfo", con=self.cursor, if_exists="append")
+        newinfo.to_sql(name="Student", con=self.cursor, if_exists="append")
     def UpdateStuInfo(self, stuid, newinfo):
 
         newinfosql = "Fullname = %s ,Firstname = %s ,CampEmail = %s , HomeEmail = %s , Gender = %s ,Birthday = %s ,Address = %s , Country = %s , ContactInfo = %s , Status ='Y' "
         condition = "WHERE ID = '%s'" % stuid
-        sql = "UPDATE StudentInfo SET " + newinfosql+condition
+        sql = "UPDATE Student SET " + newinfosql+condition
         # newinfo =newinfo.fillna('')
         val = (newinfo.iloc[0]['Fullname'],newinfo.iloc[0]['Firstname'],newinfo.iloc[0]['CampEmail'],newinfo.iloc[0]['HomeEmail'],newinfo.iloc[0]['Gender'],newinfo.iloc[0]['Birthday'],newinfo.iloc[0]['Address'],newinfo.iloc[0]['Country'],newinfo.iloc[0]['ContactInfo'])
         self.mycursor.execute(sql,val)

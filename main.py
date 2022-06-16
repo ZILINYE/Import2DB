@@ -2,8 +2,7 @@ from Cleaner.data_clean import Clean
 from DataProcess.tomaria import Maria
 
 
-def main():
-    
+def main():    
     # folderlist = ['Winter','Spring','Fall']
     
     folderlist = ['Spring']
@@ -27,7 +26,7 @@ def main():
         # Import student information into the table 'StudentInfo'
         db.ImportStuInfo()
         # Import student program register information into the table 'StudentProgram'
-        db.ImportStudentProgramInfo()
+        db.ImportEnrollment()
 
         
         # Get specfic program student list
