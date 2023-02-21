@@ -1,16 +1,10 @@
-# from curses.ascii import SI
 from distutils.log import error
 import string
 from time import process_time_ns
-
-# from tkinter.tix import Tree
 from numpy import empty, int64
 from sqlalchemy import create_engine, false, true
 import sys
 import pandas as pd
-
-# import json
-# from datetime import datetime
 import mysql.connector
 
 
@@ -19,11 +13,9 @@ class Maria:
         self.dataf = dataf
         try:
             sqlEngine = create_engine(
-                "mysql+pymysql://it:Acumen321@192.168.5.238/Ace", pool_recycle=3600
+                "", pool_recycle=3600
             )
-            self.mydb = mysql.connector.connect(
-                host="192.168.5.238", user="it", password="Acumen321", database="Ace"
-            )
+
 
         except:
             print(f"Error connecting to MariaDB Platform: {e}")
@@ -31,7 +23,6 @@ class Maria:
             sys.exit(1)
 
         # Get Cursor
-        self.mycursor = self.mydb.cursor()
         self.cursor = sqlEngine.connect()
 
     def GetProgramInfo(self, Pcode) -> pd.DataFrame:
@@ -41,11 +32,6 @@ class Maria:
         sql = "SELECT Program_code,Program_desc FROM Program " + condition
         programinfo = pd.read_sql(sql, self.cursor)
         return programinfo
-        # print(df)
-        # result = df.to_json(orient="records")
-        # parsed = json.loads(result)
-        # jsonlist = json.dumps(parsed, indent=4)
-        # print(jsonlist)
 
     def GetStudentInfo(self, Sid, condition="", field="*") -> pd.DataFrame:
         # condition = ""
@@ -60,29 +46,6 @@ class Maria:
         sql = "SELECT * FROM Enrollment "
         enrollment = pd.read_sql(sql, self.cursor)
         return enrollment
-
-    # def ImportStudentInfo(self):
-
-    #     # import student info function
-    #     studentondb = self.GetStudentInfo(Sid="")
-    #     studentInfo = self.dataf.drop(
-    #         columns=[
-    #             "Section",
-    #             "Campus_code",
-    #             "Term",
-    #             "TermYear",
-    #             "Semester",
-    #             "Program_code",
-    #         ]
-    #     ).rename(columns={"StudentID": "ID"})
-    #     droplist = studentondb["ID"].tolist()
-    #     differ = (
-    #         pd.concat([studentInfo, studentondb])
-    #         .drop_duplicates(subset=["ID"])
-    #         .set_index("ID")
-    #         .drop(droplist)
-    #     )
-    #     differ.to_sql(name="StudentInfo", con=self.cursor, if_exists="append")
 
     def ImportStuInfo(self):
         studentInfo = self.dataf.drop(
