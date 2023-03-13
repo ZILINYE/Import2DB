@@ -34,8 +34,7 @@ class Maria:
         return programinfo
 
     def GetStudentInfo(self, Sid, condition="", field="*") -> pd.DataFrame:
-        # condition = ""
-        # field = "*"
+        # Get Student information from DB, getting all student information by default
         if len(Sid) > 0:
             condition = "WHERE ID='%s'" % Sid
         sql = "SELECT " + field + " FROM Student " + condition
