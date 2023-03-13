@@ -4,6 +4,7 @@ import glob
 from warn import bcolors
 class Clean:
     def __init__(self,path):
+        # initilize the file into the dataframe 
         print("Loading File From Folder and import into Pandas")
         for file in glob.glob(path):
             file_path = file
@@ -12,6 +13,7 @@ class Clean:
 
 
     def CheckDuplicate(self,subset):
+        # Getting the duplicated row
         print("check Duplicate Data from files")
         if len(self.initfile[self.initfile.duplicated(subset=subset)])>0:
             print(f"{bcolors.WARNING}Fund {str(len(self.initfile[self.initfile.duplicated(subset=subset)]))} duplicated record(s) !!!{bcolors.ENDC}")
@@ -42,6 +44,7 @@ class Clean:
         return self.initfile
     
     def FormatDf(self) -> pd.DataFrame:
+        # Formatting the dataframe including rename the headers, add new columns and remove unused columns
         self.initfile[["Term", "TermYear"]] = self.initfile.TERMDESC.str.split(
             " ",
             expand=True,
